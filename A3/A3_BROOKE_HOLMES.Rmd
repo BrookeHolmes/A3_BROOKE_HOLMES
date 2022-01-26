@@ -1,0 +1,82 @@
+---
+title: "A3_BROOKE_HOLMES"
+author: "Brooke Holmes"
+output: html_document
+---
+Project Info
+date: "January 26, 2022"
+Brooke Holmes 20049015
+GitHub Username: BrookeHolmes
+https://github.com/BrookeHolmes/A3.git
+
+Loading library and data
+```{r}
+library(dplyr)
+df<-read.csv("InputData/FallopiaData.csv")
+```
+
+Removing rows with ‘Total’ biomass < 60
+```{r}
+df1<-filter(df,Total>=60)
+df1
+```
+Reordering columns: ‘Total’, ‘Taxon’, ‘Senario’, ‘Nutrients’, and removing the others
+```{r}
+df2<-select(df1, Total, Taxon, Scenario, Nutrients)
+df2
+```
+
+New column created: TotalG which is the Total converted to grams. TotalG replaced Total.
+```{r}
+df3 <- mutate(df2, TotalG=Total/1000)
+df3 <- select(df3,TotalG, Taxon, Scenario, Nutrients)
+```
+
+Custom function that takes two inputs from the user: 
+1. a vector of data to process
+2. a string that defines what calculation to perform.
+Average calculates the mean of the vector
+Sum calculates the sum of the vector
+Observation calculates the number of observed values in the vector
+Any other command outputs an error
+```{r}
+func<-function(var1, var2){
+  if(var2=="Average"){
+    cat("The Average is: \n")
+    avg <- mean(var1)
+    return(avg)
+  }
+  if(var2=="Sum"){
+    cat("The Sum is: \n")
+    sum <- sum(var1)
+    return(sum)
+  }
+  if(var2=="Observations"){
+  cat("The Number of Observations are: \n")
+  obs <- length(var1)
+  return(obs)
+  }
+  return("Invalid Function Input")
+}
+```
+
+Counting the total number of observations in the 'Taxon' column
+```{r}
+func(var1=df3$Taxon, var2="Observations")
+```
+
+Calculating the average TotalG for each of the two Nutrient concentrations
+```{r}
+print("Low Nutrients")
+dfLow<-subset(df3, Nutrients=="low")
+func(var1=dfLow$TotalG, var2="Average")
+
+print("High Nutrients")
+dfHigh<-subset(df3, Nutrients=="high")
+func(var1=dfHigh$TotalG, var2="Average")
+```
+
+Writing the new data to a file called "WrangledData.csv" in the Output folder
+```{r}
+write.csv(df2, "Output/WrangledData.csv")
+```
